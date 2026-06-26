@@ -40,23 +40,23 @@ mod post_tags_test {
     fn test_tags() {
         let posts = vec![
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     tags: Some(vec!["tag1".to_string(), "tag2".to_string()]),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
                 ..Default::default()
             },
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     tags: Some(vec!["tag2".to_string(), "tag3".to_string()]),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
                 ..Default::default()
             },
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     tags: Some(vec!["tag2".to_string(), "tag1".to_string()]),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
                 ..Default::default()
             },

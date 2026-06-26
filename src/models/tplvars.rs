@@ -78,6 +78,7 @@ pub struct PaginationVars {
     pub next: usize,
     pub total: usize,
     pub total_pages: usize,
+    pub per_page: usize,
     pub has_next: bool,
     pub has_prev: bool,
     pub current_url: String,

@@ -32,30 +32,45 @@ mod archive_tests {
     fn test_parse() {
         let posts = vec![
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     title: "test1".to_string(),
                     comments: Some(true),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
-                datetime: Some(chrono::NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)),
+                datetime: Some(
+                    chrono::NaiveDate::from_ymd_opt(2021, 1, 1)
+                        .unwrap()
+                        .and_hms_opt(0, 0, 0)
+                        .unwrap(),
+                ),
                 ..Default::default()
             },
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     title: "test2".to_string(),
                     comments: Some(true),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
-                datetime: Some(chrono::NaiveDate::from_ymd(2022, 1, 2).and_hms(0, 0, 0)),
+                datetime: Some(
+                    chrono::NaiveDate::from_ymd_opt(2022, 1, 2)
+                        .unwrap()
+                        .and_hms_opt(0, 0, 0)
+                        .unwrap(),
+                ),
                 ..Default::default()
             },
             models::Post {
-                meta: models::PostMetadata {
+                meta: models::post::PostMetadata {
                     title: "test3".to_string(),
                     comments: Some(true),
-                    ..models::PostMetadata::default()
+                    ..models::post::PostMetadata::default()
                 },
-                datetime: Some(chrono::NaiveDate::from_ymd(2023, 1, 3).and_hms(0, 0, 0)),
+                datetime: Some(
+                    chrono::NaiveDate::from_ymd_opt(2023, 1, 3)
+                        .unwrap()
+                        .and_hms_opt(0, 0, 0)
+                        .unwrap(),
+                ),
                 ..Default::default()
             },
         ];

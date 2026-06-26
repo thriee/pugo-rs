@@ -47,8 +47,9 @@ impl Theme<'_> {
                     .strip_prefix(dir)
                     .unwrap()
                     .to_str()
-                    .unwrap();
-                reg.register_template_file(template_name, template_file_path_str)?;
+                    .unwrap()
+                    .replace('\\', "/");
+                reg.register_template_file(&template_name, template_file_path_str)?;
                 debug!("Loaded template: {}", template_file_path_str);
             }
         }
@@ -57,6 +58,9 @@ impl Theme<'_> {
             reg,
             minify: true,
         })
+    }
+    pub fn dir(&self) -> &str {
+        &self.dir
     }
     pub fn render(
         &self,
@@ -67,6 +71,7 @@ impl Theme<'_> {
         let output_dir = std::path::Path::new(to_file).parent().unwrap();
         std::fs::create_dir_all(output_dir)?;
         let html = self.reg.render(name, vars)?;
+        debug!("Render template `{}` from theme `{}`", name, self.dir());
         if self.minify {
             use html_minifier::HTMLMinifier;
             let mut html_minifier = HTMLMinifier::new();

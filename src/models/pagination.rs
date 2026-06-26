@@ -69,6 +69,7 @@ impl PaginationItem {
             next: self.next,
             total: self.total,
             total_pages: self.total_pages,
+            per_page: self.size,
             has_prev: self.has_previous,
             has_next: self.has_next,
             current_url: self.current_url(),
