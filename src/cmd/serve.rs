@@ -11,15 +11,25 @@ pub fn run_serve(args: cmd::ServerArgs) {
         clean: args.clean,
     };
     // build first, then start server
-    let site = cmd::run_build_site(build_args).unwrap();
-    start_server(site.config.directory.output, args.port).unwrap();
+    let site = match cmd::run_build_site(build_args) {
+        Ok(s) => s,
+        Err(e) => {
+            log::error!("Failed to build site: {}", e);
+            return;
+        }
+    };
+    if let Err(e) = start_server(site.config.directory.output, args.port) {
+        log::error!("Failed to start server: {}", e);
+    }
 }
 
 #[actix_web::main]
 async fn start_server(dst_dir: String, port: u16) -> std::io::Result<()> {
     info!("Starting server at http://localhost:{}", port);
-    HttpServer::new(move || {App::new().service(Files::new("/", &dst_dir).index_file("index.html"))})
-        .bind(("127.0.0.1", port))?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new().service(Files::new("/", &dst_dir).index_file("index.html"))
+    })
+    .bind(("127.0.0.1", port))?
+    .run()
+    .await
 }

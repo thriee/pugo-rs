@@ -1,18 +1,19 @@
 use crate::models;
 use chrono::{Local, TimeZone, Utc};
 use log::{debug, error, info};
+use std::path::Path;
 
-pub struct Site<'a> {
+pub struct Site {
     pub config: models::Config,
     pub posts: Vec<models::Post>,
     pub pages: Vec<models::Post>,
     pub tags: Vec<models::Tag>,
-    pub theme: models::Theme<'a>,
+    pub theme: models::Theme<'static>,
 
     template_vars: models::TemplateVars,
 }
 
-impl Site<'_> {
+impl Site {
     pub fn load(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
         // 1. read config
         let config = models::Config::from_file(path)?;
@@ -70,12 +71,10 @@ impl Site<'_> {
             if p.meta.language.is_none() {
                 p.meta.language = Some(self.config.site.language.clone());
             }
-            // page's brief is empty
-            // p.brief_html = markdown_to_html(&p.brief_markdown);
             p.content_html = markdown_to_html(&p.content_markdown);
             p.author = Some(self.config.get_author(p.meta.author.as_ref().unwrap()));
 
-            // use page.hbs instead of post.hbs as default post
+            // use page.hbs instead of post.hbs as default
             if p.meta.template.as_ref().unwrap() == "post.hbs" {
                 p.meta.template = Some("page.hbs".to_string());
             }
@@ -107,10 +106,10 @@ impl Site<'_> {
         // 5. build rss
         outputs.extend(self.build_rss()?);
 
-        // 5. generate files
+        // 6. generate files
         let generated_count = self.generate_files(&mut outputs)?;
 
-        // 6. copy static files
+        // 7. copy static files
         self.copy_assets();
 
         debug!("Generate files: {}", generated_count);
@@ -143,7 +142,8 @@ impl Site<'_> {
         // build pagination
         let pagination = models::Pagination::new(self.posts.len(), self.config.url.per_page_size);
         for i in 0..pagination.total_pages {
-            let current_page = pagination.build_each_page(i + 1, &self.config.url.post_page_format);
+            let current_page =
+                pagination.build_each_page(i + 1, &self.config.url.post_page_format);
             let output_file = self
                 .config
                 .build_dist_html_filepath(&current_page.current_url(), true);
@@ -435,8 +435,8 @@ impl Site<'_> {
     fn copy_assets(&self) {
         let copy_dirs = self.config.build_assets_dirs();
         for (src, dst) in copy_dirs {
-            if std::fs::metadata(&src).is_err() {
-                debug!("Copied {}, but does not exist", src);
+            if !Path::new(&src).exists() {
+                debug!("Skipped copying {}, directory does not exist", src);
                 continue;
             }
             std::fs::create_dir_all(&dst).unwrap();

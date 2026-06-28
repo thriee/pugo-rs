@@ -1,6 +1,8 @@
 use crate::models;
 use crate::utils;
 
+pub const DEFAULT_CONFIG_FILE: &str = "config.toml";
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DirectoryConfig {
     pub source: String,
@@ -9,8 +11,8 @@ pub struct DirectoryConfig {
     pub assets: Vec<String>,
 }
 
-impl DirectoryConfig {
-    pub fn new() -> DirectoryConfig {
+impl Default for DirectoryConfig {
+    fn default() -> Self {
         Self {
             source: String::from("source"),
             output: String::from("dist"),
@@ -31,8 +33,8 @@ pub struct UrlConfig {
     pub tag_page_format: String,
 }
 
-impl UrlConfig {
-    pub fn new() -> UrlConfig {
+impl Default for UrlConfig {
+    fn default() -> Self {
         Self {
             base: String::from("http://localhost:19292"),
             root: String::from("/"),
@@ -52,8 +54,8 @@ pub struct ThemeConfig {
     pub assets_dir: Vec<String>,
 }
 
-impl ThemeConfig {
-    pub fn new() -> ThemeConfig {
+impl Default for ThemeConfig {
+    fn default() -> Self {
         Self {
             name: "default".to_string(),
             index_template: "posts.hbs".to_string(),
@@ -79,8 +81,8 @@ pub struct SiteConfig {
     pub author: String,
 }
 
-impl SiteConfig {
-    pub fn new() -> SiteConfig {
+impl Default for SiteConfig {
+    fn default() -> Self {
         Self {
             title: "PuGo".to_string(),
             subtitle: "a simple static site generator".to_string(),
@@ -109,13 +111,13 @@ pub struct Config {
     pub author: Option<std::collections::HashMap<String, models::Author>>,
 }
 
-impl Config {
-    pub fn default() -> Self {
+impl Default for Config {
+    fn default() -> Self {
         let mut cfg = Config {
-            site: SiteConfig::new(),
-            url: UrlConfig::new(),
-            directory: DirectoryConfig::new(),
-            theme: ThemeConfig::new(),
+            site: SiteConfig::default(),
+            url: UrlConfig::default(),
+            directory: DirectoryConfig::default(),
+            theme: ThemeConfig::default(),
             nav: vec![
                 NavConfig {
                     name: "Archives".to_string(),
@@ -130,14 +132,16 @@ impl Config {
             ],
             author: Some(std::collections::HashMap::new()),
         };
-        let author = models::Author::default();
+        let author = models::Author::new();
         cfg.author
             .as_mut()
             .unwrap()
             .insert("pugo".to_string(), author);
         cfg
     }
+}
 
+impl Config {
     pub fn to_file(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
         let bytes = toml::to_string_pretty(&self)?;
         std::fs::write(path, bytes)?;
@@ -145,8 +149,8 @@ impl Config {
     }
 
     pub fn from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let bytes = std::fs::read(path)?;
-        let cfg = toml::from_str(&String::from_utf8_lossy(&bytes))?;
+        let content = std::fs::read_to_string(path)?;
+        let cfg = toml::from_str(&content)?;
         Ok(cfg)
     }
 

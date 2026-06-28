@@ -1,4 +1,3 @@
-use crate::models;
 use chrono::NaiveDateTime;
 use handlebars::handlebars_helper;
 use log::debug;
@@ -31,7 +30,7 @@ pub struct Theme<'a> {
     minify: bool,
 }
 
-impl Theme<'_> {
+impl Theme<'static> {
     pub fn parse(dir: &str) -> Result<Theme<'static>, Box<dyn std::error::Error>> {
         let mut reg = handlebars::Handlebars::new();
         reg.register_helper("date_format", Box::new(date_format));
@@ -40,8 +39,9 @@ impl Theme<'_> {
             let template_file_path = entry.path();
             let template_file_path_str = template_file_path.to_str().unwrap();
             if template_file_path.is_file()
-                && (template_file_path.extension().unwrap() == "html"
-                    || template_file_path.extension().unwrap() == "hbs")
+                && template_file_path
+                    .extension()
+                    .is_some_and(|ext| ext == "html" || ext == "hbs")
             {
                 let template_name = template_file_path
                     .strip_prefix(dir)
@@ -66,7 +66,7 @@ impl Theme<'_> {
         &self,
         name: &str,
         to_file: &str,
-        vars: &models::GlobalVars,
+        vars: &crate::models::GlobalVars,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let output_dir = std::path::Path::new(to_file).parent().unwrap();
         std::fs::create_dir_all(output_dir)?;

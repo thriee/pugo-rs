@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate clap;
-
-extern crate log;
-
 use clap::{Parser, Subcommand};
 
 mod cmd;
@@ -10,10 +5,10 @@ mod models;
 mod utils;
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(propagate_version = true)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
 struct Cli {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     command: Commands,
 }
 
@@ -30,15 +25,12 @@ enum Commands {
 }
 
 fn main() {
-    // set logger
     env_logger::Builder::new()
         .filter_level(log::LevelFilter::max())
         .format_module_path(false)
         .init();
 
-    // parse cli arguments
     let args = Cli::parse();
-    // run command
     match args.command {
         Commands::Init {} => {
             cmd::run_init();

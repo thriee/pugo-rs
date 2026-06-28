@@ -8,8 +8,7 @@ pub struct Tag {
 }
 
 fn build_tag_link(tag: &str, format: &str) -> String {
-    let link = format.to_string();
-    link.replace(":tag", tag)
+    format.replace(":tag", tag)
 }
 
 impl Tag {
@@ -27,7 +26,7 @@ impl Tag {
             }
         }
         let mut values: Vec<Tag> = tags.into_values().collect();
-        values.sort_by(|a, b| b.posts_index.len().cmp(&a.posts_index.len()));
+        values.sort_by_key(|b| std::cmp::Reverse(b.posts_index.len()));
         values
     }
 }
@@ -61,7 +60,7 @@ mod post_tags_test {
                 ..Default::default()
             },
         ];
-        let url_config = models::UrlConfig::new();
+        let url_config = models::UrlConfig::default();
         let tags = Tag::parse(&posts, &url_config);
         assert_eq!(tags.len(), 3); // tag1, tag2, tag3
         assert_eq!(tags[0].name, "tag2"); // tag2 has the most posts

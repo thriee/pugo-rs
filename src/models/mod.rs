@@ -3,6 +3,7 @@ pub use author::Author;
 
 mod config;
 pub use config::Config;
+pub use config::DEFAULT_CONFIG_FILE;
 pub use config::DirectoryConfig;
 pub use config::UrlConfig;
 

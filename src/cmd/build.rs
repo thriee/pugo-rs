@@ -7,16 +7,15 @@ use std::sync::mpsc::{channel, Sender};
 pub fn run_build(args: cmd::BuildArgs) {
     let start = std::time::Instant::now();
     run_build_site(args).unwrap();
-    info!("Loaded site successfully, eplased: {:?}", start.elapsed());
+    info!("Loaded site successfully, elapsed: {:?}", start.elapsed());
 }
 
 pub fn run_build_site(
     args: cmd::BuildArgs,
-) -> Result<models::Site<'static>, Box<dyn std::error::Error>> {
+) -> Result<models::Site, Box<dyn std::error::Error>> {
     info!("Building start");
 
-    let config_file = "config.toml";
-    let site = match models::Site::load(config_file) {
+    let site = match models::Site::load(models::DEFAULT_CONFIG_FILE) {
         Ok(site) => site,
         Err(err) => {
             error!("Load site failed: {}", err);
@@ -37,24 +36,24 @@ pub fn run_build_site(
         }
     }
 
-    let directory_config = site.config.directory.clone();
     if args.watch {
+        let directory_config = site.config.directory.clone();
         if args.watch_in_spawn {
             std::thread::spawn(move || {
-                start_watch(&directory_config, &args);
+                start_watch(&directory_config, args);
             });
             debug!("Watching in spawn");
         } else {
-            start_watch(&directory_config, &args);
+            start_watch(&directory_config, args);
         }
     }
     Ok(site)
 }
 
-pub fn start_watch(dir_config: &models::DirectoryConfig, build_args: &cmd::BuildArgs) {
+pub fn start_watch(dir_config: &models::DirectoryConfig, build_args: cmd::BuildArgs) {
     let (send, recv) = channel();
     let dirs = vec![dir_config.source.to_string(), dir_config.themes.to_string()];
-    let mut args = *build_args;
+    let mut args = build_args;
 
     // close watching when watching triggered
     args.watch = false;
@@ -81,7 +80,7 @@ pub fn start_watch(dir_config: &models::DirectoryConfig, build_args: &cmd::Build
     }
 }
 
-pub fn start_watching_dirs(dirs: &Vec<String>, sender: &Sender<String>) -> notify::Result<()> {
+pub fn start_watching_dirs(dirs: &[String], sender: &Sender<String>) -> notify::Result<()> {
     info!("Watching site");
     let (tx, rx) = std::sync::mpsc::channel();
 

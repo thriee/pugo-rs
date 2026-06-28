@@ -16,7 +16,8 @@ impl Author {
             ..Author::default()
         }
     }
-    pub fn default() -> Self {
+    /// Create a new Author with sensible defaults.
+    pub fn new() -> Self {
         let mut author = Author {
             name: "author".to_string(),
             email: "author@example.com".to_string(),
@@ -53,7 +54,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_avatar_url() {
-        let mut author = Author::default();
+        let mut author = Author::new();
         assert_eq!(author.name, "author");
 
         author.avatar = String::from("avatar.png");

@@ -88,7 +88,7 @@ pub struct Pagination {
 
 impl Pagination {
     pub fn new(total: usize, per_page: usize) -> Pagination {
-        let total_pages = (total as f64 / per_page as f64).ceil() as usize;
+        let total_pages = total.div_ceil(per_page);
         Pagination {
             total,
             per_page,
@@ -113,8 +113,8 @@ mod tests {
         assert_eq!(page.total, 99);
         assert_eq!(page.total_pages, 10);
         assert_eq!(page.size, 10);
-        assert_eq!(page.has_previous, true);
-        assert_eq!(page.has_next, true);
+        assert!(page.has_previous);
+        assert!(page.has_next);
         assert_eq!(page.previous, 2);
         assert_eq!(page.next, 4);
         assert_eq!(page.start, 20);

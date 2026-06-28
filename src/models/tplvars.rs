@@ -1,4 +1,5 @@
 use crate::models;
+use clap::crate_version;
 
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AuthorVars {
@@ -12,27 +13,15 @@ pub struct AuthorVars {
 
 impl AuthorVars {
     pub fn new(a: &models::Author) -> AuthorVars {
-        let mut author_vars = AuthorVars {
+        let has_social = a.social.as_ref().is_some_and(|s| !s.is_empty());
+        AuthorVars {
             name: a.name.clone(),
             bio: a.bio.clone(),
             url: a.website.clone(),
             avatar: a.build_avatar_url(),
-            has_social: false,
+            has_social,
             social: a.social.clone(),
-        };
-        if let Some(social) = &a.social {
-            if !social.is_empty() {
-                author_vars.has_social = true;
-            }
-            for (k, v) in social {
-                author_vars
-                    .social
-                    .as_mut()
-                    .unwrap()
-                    .insert(k.clone(), v.clone());
-            }
         }
-        author_vars
     }
 }
 
@@ -90,7 +79,6 @@ pub struct PaginationVars {
 pub struct NavVars {
     pub name: String,
     pub url: String,
-    // pub children: Option<Vec<NavVars>>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
